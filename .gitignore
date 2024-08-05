@@ -1,0 +1,86 @@
+# Compiled object files
+*.o
+*.obj
+
+# Compiled dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled static libraries
+*.a
+*.lib
+
+# Executable files
+*.out
+*.exe
+
+# Debug files
+*.dSYM/
+*.stackdump
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Dependency files
+*.d
+
+# Debug log files
+*.log
+
+# Temporary files
+*~
+*.swp
+*.swo
+*.tmp
+
+# Project-specific files
+.vscode/
+.idea/
+*.code-workspace
+*.sublime-workspace
+*.sublime-project
+
+# CMake build directory
+/build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# Makefile intermediates
+Makefile
+makefile
+
+# Autotools intermediates
+/autom4te.cache/
+/.deps/
+/.libs/
+/config.status
+/config.log
+/configure
+/aclocal.m4
+/compile
+/depcomp
+/install-sh
+/missing
+/stamp-h1
+
+# Editor directories and files
+*.vscode/
+*.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Other files to ignore
+tags
+*.bak
+*.backup
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
