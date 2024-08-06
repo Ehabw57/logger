@@ -57,7 +57,7 @@ typedef struct logger_state
     employee_t *employees;
 } logger_state_t;
 
-void exit_handler(char **line, char **tokens);
+void exit_handler(char **line, char **tokens, void* state_ptr);
 char *read_line(); /*get line for standerd input*/
 char **tokenize_line(char *line); /*toknaize the line based on space delimters*/
 int add_log_entry(char *employee_name, time_struct *time, logger_state_t *state); /*add a new employee log to the log entriyes*/
@@ -68,5 +68,6 @@ int add_employee_command(char **args, void *state); /*add a new employee to the 
 char *strdup(const char *str); /*duplicate a string*/
 int string_compare(char *s1, char *s2); /*compare 2 strings*/
 int remove_employee(char** args, void *state_ptr);
+int dump_data(void *state_ptr);
 #endif
 

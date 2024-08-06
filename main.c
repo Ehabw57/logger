@@ -10,7 +10,6 @@ int main(void)
     command_t commands[] = {
         {"log", log_command},
         {"print", print_command},
-        {"print_employees", print_command},
         {"add", add_employee_command},
 		{"remove", remove_employee},
         {NULL, NULL}
@@ -24,7 +23,7 @@ int main(void)
 
         if (string_compare(tokens[0], "exit") == 0)
         {
-            exit_handler(&line, tokens);
+            exit_handler(&line, tokens, &state);
         }
 
         for (i = 0; commands[i].function != NULL; i++)

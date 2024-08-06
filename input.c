@@ -1,12 +1,12 @@
 #include "logger.h"
 
-void exit_handler(char **line, char **tokens)
-	
+void exit_handler(char **line, char **tokens, void *state_ptr)
 {
-    free(*line);
-    free(tokens);
-    // Free any other allocated memory in the state if necessary
-    exit(0);
+	dump_data(state_ptr);
+	free(*line);
+	free(tokens);
+	// Free any other allocated memory in the state if necessary
+	exit(0);
 }
 
 char *read_line()
