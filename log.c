@@ -67,3 +67,37 @@ int log_command(char **args, void *state_ptr)
 }
 
 
+int free_log(logger_state_t *logs, log_entry_t *free_log)
+{
+    log_entry_t *tmp = NULL;
+
+    if (logs == NULL)
+        return 1;
+
+    if (free_log == NULL)
+    {
+        free_log = logs->log_entries;
+        if (logs->log_entries != NULL)
+            logs->log_entries = logs->log_entries->next;
+    }
+    else
+    {
+        if (logs->log_entries == free_log)
+        {
+            logs->log_entries = free_log->next;
+        }
+        else
+        {
+            for (tmp = logs->log_entries; tmp != NULL && tmp->next != free_log; tmp = tmp->next);
+            if (tmp == NULL)
+                return 1; // free_log was not found in the list
+            tmp->next = free_log->next;
+        }
+    }
+
+    free(free_log->employee);
+    free(free_log->log_time);
+    free(free_log);
+
+    return 0;
+}

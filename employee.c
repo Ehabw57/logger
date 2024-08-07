@@ -54,7 +54,7 @@ int remove_employee(char** args, void *state_ptr)
 
 	if (employee_name == NULL || check_employee(employee_name, employee_list) == NULL)
 	{ 
-		printf("Please provide an correct employee name to remove or type [help remove]\n");
+		printf("Please provide a correct employee name to remove or type [help remove]\n");
 		return(1);
 	}
 
@@ -67,9 +67,10 @@ int remove_employee(char** args, void *state_ptr)
 				state->employees = state->employees->next;
 			else
 				tmp->next = employee_list->next;
+			printf("Good bye %s we are not going to miss you\n", employee_name);
 			free(employee_list->name);
 			free(employee_list);
-			return (1);	
+			return (0);	
 		}
 		tmp = employee_list;
 		employee_list = employee_list->next;

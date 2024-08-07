@@ -1,7 +1,12 @@
 #ifndef LOGGER_H
 #define LOGGER_H
+#define _XOPEN_SOURCE 700 /* Enable GNU extensions for strptime*/
 
 #define BUFFER_SIZE 1024
+#define COMMAND_LINE "Logger>> "
+#define LOG_DATA_FILE "./logs_data.log"
+#define EMPLOYEE_DATA_FILE "./employee_data.log"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -58,7 +63,7 @@ typedef struct logger_state
 } logger_state_t;
 
 void exit_handler(char **line, char **tokens, void* state_ptr);
-char *read_line(); /*get line for standerd input*/
+char *read_line(FILE *stream); /*get line for standerd input*/
 char **tokenize_line(char *line); /*toknaize the line based on space delimters*/
 int add_log_entry(char *employee_name, time_struct *time, logger_state_t *state); /*add a new employee log to the log entriyes*/
 char *check_employee(char *employee_name, employee_t *employee_list); /*search for a spasific employee in the employee list*/
@@ -69,5 +74,7 @@ char *strdup(const char *str); /*duplicate a string*/
 int string_compare(char *s1, char *s2); /*compare 2 strings*/
 int remove_employee(char** args, void *state_ptr);
 int dump_data(void *state_ptr);
+int free_log(logger_state_t *logs, log_entry_t *free_log);
+int load_data(void *state_ptr, char *file);
 #endif
 

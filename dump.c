@@ -1,44 +1,8 @@
 #include "logger.h"
-#include <stdio.h>
-#include <time.h>
 /**
  *
  */
 
-int free_log(logger_state_t *logs, log_entry_t *free_log)
-{
-    log_entry_t *tmp = NULL;
-
-    if (logs == NULL)
-        return 1;
-
-    if (free_log == NULL)
-    {
-        free_log = logs->log_entries;
-        if (logs->log_entries != NULL)
-            logs->log_entries = logs->log_entries->next;
-    }
-    else
-    {
-        if (logs->log_entries == free_log)
-        {
-            logs->log_entries = free_log->next;
-        }
-        else
-        {
-            for (tmp = logs->log_entries; tmp != NULL && tmp->next != free_log; tmp = tmp->next);
-            if (tmp == NULL)
-                return 1; // free_log was not found in the list
-            tmp->next = free_log->next;
-        }
-    }
-
-    free(free_log->employee);
-    free(free_log->log_time);
-    free(free_log);
-
-    return 0;
-}
 int dump_data(void *state_ptr)
 {
 	logger_state_t *state = (logger_state_t *) state_ptr;
@@ -50,7 +14,7 @@ int dump_data(void *state_ptr)
 	if (state_ptr == NULL)
 		return(1);
 
-	dump_file = fopen("logs_data.log", "w");
+	dump_file = fopen(LOG_DATA_FILE, "w");
 	if (dump_file == NULL)
 		return (1);
 
@@ -63,7 +27,7 @@ int dump_data(void *state_ptr)
     }
 	fclose(dump_file);
 
-	dump_file = fopen("employee_data.log", "w");
+	dump_file = fopen(EMPLOYEE_DATA_FILE, "w");
 	if (dump_file == NULL)
 		return (1);
 

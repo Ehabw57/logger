@@ -50,7 +50,7 @@ int print_log_entriys(char **args, void *state_ptr)
 
     while (logs != NULL)
     {
-        printf("Employee [%s] logged at [%s] \n", logs->employee, asctime(logs->log_time));
+        printf("Employee [%s] logged at %s", logs->employee, asctime(logs->log_time));
         logs = logs->next;
     }
 	return (0);
