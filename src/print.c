@@ -1,9 +1,10 @@
 #include "logger.h"
 /**
- * print_employees - print all employess in the list
- * @args: Funciton arguments
- * @state_ptr: prointer to the logger state holder
- * Return: 0 if print succeded or 1 otherwise
+ * print_employees - Prints all employees in the employee list.
+ * @args: Function arguments, not used in this implementation.
+ * @state_ptr: Pointer to the logger state which holds the employee list.
+ * 
+ * Return: 0 if print succeeded, 1 otherwise (e.g., if the list is empty).
  */
 int print_employees(char **args, void* state_ptr)
 {
@@ -30,10 +31,11 @@ int print_employees(char **args, void* state_ptr)
 }
 
 /**
- * print_log_entriys - print log entriys based on some arguments
- * @args: Funciton arguments
- * @state_ptr: prointer to the logger state holder
- * Return: 0 if print succeded or 1 otherwise
+ * print_log_entries - Prints log entries based on function arguments.
+ * @args: Function arguments, not used in this implementation.
+ * @state_ptr: Pointer to the logger state which holds the log entries list.
+ * 
+ * Return: 0 if print succeeded, 1 otherwise (e.g., if the list is empty).
  */
 int print_log_entriys(char **args, void *state_ptr)
 {
@@ -56,12 +58,19 @@ int print_log_entriys(char **args, void *state_ptr)
 	return (0);
 }
 /**
+ * print_command - Handles the print command to display either logs or employees.
+ * @args: Function arguments, where the first argument specifies what to print (e.g., "logs" or "employee").
+ * @state_ptr: Pointer to the logger state which holds both employee and log entries lists.
+ * 
+ * Return: 0 if print succeeded, 1 otherwise (e.g., if the command is unrecognized).
  */
 int print_command(char **args, void *state_ptr)
 {
 	if(args == NULL)
 	{
-		printf("could not understand what to print\ncheck {help print}");
+		*args = "null";
+here: 
+		printf("print: Looks like [%s] is not a print feature\n\tcheck {help print}\n", args[0]);
 		return (1);
 	}
 
@@ -69,7 +78,7 @@ int print_command(char **args, void *state_ptr)
 		return(print_log_entriys(args+1, state_ptr));
 	if (string_compare(args[0], "employee") == 0)
 		return(print_employees(args+1, state_ptr));
+	
+	goto here;
 
-	printf("could not understand what to print\n\tcheck {help print}\n");
-	return(1);
 }

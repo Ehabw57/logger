@@ -2,6 +2,8 @@
 
 int string_compare(char *s1, char *s2)
 {
+	if (s1 == NULL || s2 == NULL)
+		return (-1);
     while (*s1 && *s2) {
         char c1 = tolower((unsigned char) *s1);
         char c2 = tolower((unsigned char) *s2);
