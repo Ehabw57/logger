@@ -7,6 +7,7 @@
 #define LOG_DATA_FILE "./data/logs_data.log" /* File for storing log data */
 
 #include <stdio.h>
+#include <sqlite3.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -77,5 +78,10 @@ int load_data(void *state_ptr, char *file); /* Loads all data from the data file
 char *strdup(const char *str); /* Duplicates a string */
 int string_compare(char *s1, char *s2); /* Compares two strings */
 void exit_handler(char **line, char **tokens, void *state_ptr); /* Handles exit cases, freeing resources */
+/* Database Functions */
+int create_db(sqlite3 *db); /* Creates the database tables */
+int open_connection(char *db_name, sqlite3 **db); /* Opens a connection to the database */
+int close_connection(sqlite3 *db); /* Closes the connection to the database */
+
 
 #endif /* LOGGER_H */
