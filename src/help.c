@@ -60,8 +60,9 @@ static void print_command_help(char *command)
  * 
  * Return: Alwayas return 0
  */
-int help_command(char **args, void *state_ptr)
+int help_command(char **args, sqlite3 *NotUsed, void *state_ptr)
 {
+	(void) NotUsed;
 	(void) state_ptr;
     if (args == NULL || *args == NULL)
     {
