@@ -24,6 +24,7 @@ typedef struct tm time_struct;
  */
 typedef struct log_entry
 {
+	int id;
     char *employee;
     time_struct *log_time;
     struct log_entry *next;
@@ -36,6 +37,7 @@ typedef struct log_entry
  */
 typedef struct employee
 {
+	int id;
     char *name;
     struct employee *next;
 } employee_t;
@@ -48,7 +50,7 @@ typedef struct employee
 typedef struct command
 {
     char *name;
-    int (*function)(char **, void *);
+	int (*func)(char **args, sqlite3 *, void *state_ptr);
 } command_t;
 
 /**
@@ -65,16 +67,13 @@ typedef struct logger_state
 /* Function Prototypes */
 char *read_line(FILE *stream); /* Reads a line from standard input */
 char **tokenize_line(char *line); /* Tokenizes a line based on space delimiters */
+int add_employee(char *name, int id, void *state_ptr); /* Adds a new employee to the employee list */
+int remove_employee(employee_t *entry, void *state_ptr); /* Removes an employee from the employee list */
 int log_command(char **args, void *state); /* Starts a new log entry */
-int print_command(char **args, void *state_ptr); /* Prints log or employee data */
-int add_employee_command(char **args, void *state); /* Adds a new employee to the list */
-int help_command(char **args, void *state_ptr); /*help manual*/
-int remove_employee(char **args, void *state_ptr); /* Removes an employee from the list */
-char *check_employee(char *employee_name, employee_t *employee_list); /* Searches for a specific employee in the list */
+int print_command(char **args, sqlite3 *NotUsed, void *state_ptr); /* Prints data based on the type specified */
+int help_command(char **args, sqlite3 *NotUsed, void *state_ptr); /* Displays help information */
 int add_log_entry(char *employee_name, time_struct *time, logger_state_t *state); /* Adds a new log entry for an employee */
 int remove_log_entry(logger_state_t *logger_state, log_entry_t *target_log) ; /* Frees a log entry */
-int dump_data(void *state_ptr); /* Dumps all data to the data files */
-int load_data(void *state_ptr, char *file); /* Loads all data from the data files */
 char *strdup(const char *str); /* Duplicates a string */
 int string_compare(char *s1, char *s2); /* Compares two strings */
 void exit_handler(char **line, char **tokens, void *state_ptr); /* Handles exit cases, freeing resources */
@@ -82,6 +81,11 @@ void exit_handler(char **line, char **tokens, void *state_ptr); /* Handles exit 
 int create_db(sqlite3 *db); /* Creates the database tables */
 int open_connection(char *db_name, sqlite3 **db); /* Opens a connection to the database */
 int close_connection(sqlite3 *db); /* Closes the connection to the database */
+int add_employee_command(char **args, sqlite3 *db, void *state_ptr); /* Adds a new employee to the database */
+int remove_employee_command(char **args, sqlite3 *db, void *state_ptr); /* Removes an employee from the database */
+int callback_employees(void *state_ptr, int argc, char **argv, char **azColName); /* Callback function for employee data */
+int storage_reload(sqlite3 *db, logger_state_t *state); /* Reloads employee data from the database */
+
 
 
 #endif /* LOGGER_H */
