@@ -18,18 +18,26 @@ int insert_log(sqlite3 *db, int employee_id, time_struct *local_time, logger_sta
 	time_str = asctime(local_time);
 	time_str[strlen(time_str) - 1] = '\0';
 
-	sql = sqlite3_mprintf("INSERT INTO log_entries (employee_id, log_time) VALUES (%d, '%q');", employee_id, time_str);
+	sql = sqlite3_mprintf("INSERT INTO logs (employee_id, log_time) VALUES (%d, '%q');", employee_id, time_str);
 	if (sql_exec(sql, db, state, 0) != 0)
 		return 1;
 
 	sqlite3_free(sql);
 	return 0;
 }
+
+/**
+ * remove_log - Remove all log entries for a given employee.
+ * @db: The database connection
+ * @employee_id: The ID of the employee
+ * @state: The logger state
+ * Return: 0 on success, 1 on failure
+ */
 int remove_log(sqlite3 *db, int employee_id, logger_state_t *state)
 {
 	char *sql = NULL;
 
-	sql = sqlite3_mprintf("DELETE FROM log_entries WHERE employee_id = %d;", employee_id);
+	sql = sqlite3_mprintf("DELETE FROM logs WHERE employee_id = %d;", employee_id);
 	if (sql_exec(sql, db, state, 0) != 0)
 		return 1;
 

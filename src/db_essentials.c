@@ -24,7 +24,7 @@ int create_db(sqlite3 *db) {
     char *sql = "CREATE TABLE IF NOT EXISTS employees ("
                 "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 "name TEXT NOT NULL UNIQUE);"
-                "CREATE TABLE IF NOT EXISTS log_entries ("
+                "CREATE TABLE IF NOT EXISTS logs ("
                 "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 "employee_id INTEGER,"
                 "log_time TEXT,"
