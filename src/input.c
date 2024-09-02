@@ -21,10 +21,12 @@ void exit_handler(sqlite3 *db, char **line, char **tokens, void *state_ptr)
 		free(tmp->name);
 		free(tmp);
 	}
-	free(*line);
-	free(tokens);
 	close_connection(db);
-	printf("---------Goodbye---------\n");
+	if (*line != NULL)
+		free(*line);
+	if(tokens != NULL)
+		free(tokens);
+	printf("\n---------Goodbye---------\n");
 }
 
 /**
