@@ -68,12 +68,21 @@ int callback_logs(void *NotUsed, int argc, char **argv, char **azColName)
 
 int print_logs(sqlite3 *db, char**args)
 {
-	char *sql = sqlite3_mprintf("SELECT logs.id, employees.name, logs.log_time FROM logs JOIN employees ON logs.employee_id = employees.id");
+	char * sql = NULL;
 
-	if (args[0] != NULL)
+	if (args[0] == NULL)
+		sql = sqlite3_mprintf("SELECT logs.id, employees.name, logs.log_time FROM logs JOIN employees ON logs.employee_id = employees.id");
+	else
 	{
-		sqlite3_free(sql);
-		sql = sqlite3_mprintf("SELECT logs.id, employees.name, logs.log_time FROM logs JOIN employees ON logs.employee_id = employees.id WHERE employees.name LIKE '%q'", args[0]);
+		if (string_compare(args[0], "name") == 0)
+			sql = sqlite3_mprintf("SELECT logs.id, employees.name, logs.log_time FROM logs JOIN employees ON logs.employee_id = employees.id WHERE employees.name LIKE '%q'", args[1] ? args[1] : "");
+		else if (string_compare(args[0], "id") == 0)
+			sql = sqlite3_mprintf("SELECT logs.id, employees.name, logs.log_time FROM logs JOIN employees ON logs.employee_id = employees.id WHERE employees.id = %q", args[1] ? args[1] : "");
+		else
+		{
+			printf("print: Can't filter by [%s] attrbuite,  use <name || id> \n", args[0]);
+			return(1);
+		}
 	}
 	if (sql_exec(sql, db, 0, callback_logs) != SQLITE_OK || !print_data)
 	{
