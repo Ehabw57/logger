@@ -33,11 +33,11 @@ int insert_log(sqlite3 *db, int employee_id, time_struct *local_time, logger_sta
  * @state: The logger state
  * Return: 0 on success, 1 on failure
  */
-int remove_log(sqlite3 *db, int employee_id, logger_state_t *state)
+int remove_log(sqlite3 *db, int id, logger_state_t *state)
 {
 	char *sql = NULL;
 
-	sql = sqlite3_mprintf("DELETE FROM logs WHERE employee_id = %d;", employee_id);
+	sql = sqlite3_mprintf("DELETE FROM logs WHERE id = %d;", id);
 	if (sql_exec(sql, db, state, 0) != 0)
 		return 1;
 
@@ -59,16 +59,47 @@ int log_command(char **args, sqlite3 *db, void *state_ptr)
 	employee_t *employee = NULL;
 	employee_t *employee_list = state->employees;
 
-	if (args == NULL || args[0] == NULL)
-		return 1;
 
-	employee = check_employee(NULL, atoi(args[0]), employee_list);
+ 
+	if (args[0] == NULL)
+		return 1;
+	if (string_compare(args[0], "name") == 0)
+		employee = check_employee(args[1] ? args[1] : NULL, 0, employee_list);
+	else if (string_compare(args[0], "id") == 0)
+		employee = check_employee(NULL, args[1] ? atoi(args[1]) : 0, employee_list);
+	else
+	{
+		printf("print: Can't filter by [%s] attrbuite,  use <name || id> \n", args[0]);
+		return(1);
+	}
+
 	if (employee == NULL)
 	{
-		printf("Could not find [%s] in the employee list\n", args[0]);
+		printf("print: There is no employee with %s = %s\n", args[0], args[1] ? args[1] : "null");
 		return 1;
 	}
 
     local_time = localtime(&current_time);
 	return(insert_log(db, employee->id, local_time, state_ptr));
+}
+
+/**
+ * unlog_command - Removes a log entry from the database.
+ * @args: Array of arguments, where the first element is the log ID.
+ * @state_ptr: Pointer to the logger state which holds the log entries and employee list.
+ * 
+ * Return: 0 on success, 1 on failure (e.g., log not found, invalid input).
+ */
+int unlog_command(char **args, sqlite3 *db, void *state_ptr)
+{
+	if (args[0] == NULL)
+		return 1;
+
+	if(remove_log(db, atoi(args[0]), state_ptr) != 0)
+	{	
+		printf("unlog: There is no log with id = %s\n", args[0]);
+		return 1;
+	}
+	printf("unlog: Successfully removed log (%s)\n", args[0]);
+	return 0;
 }

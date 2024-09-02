@@ -86,14 +86,14 @@ int add_employee_command(char **args, sqlite3 *db, void *state_ptr)
 
 	if (args == NULL || args[0] == NULL)
 	{
-		fprintf(stderr, "Please provide a correct employee name to add or type [help add]\n");
+		fprintf(stderr, "add: Please provide a correct employee name to add or type [help add]\n");
 		return 1;
 	}
 
 	/* check if the employee is already in the database */
     if (check_employee(args[0], 0, state->employees) != NULL)
     {
-        printf("Employee [%s] is already in the list\n", args[0]); 
+        printf("add: Employee [%s] is already in the list\n", args[0]); 
         return 1;
     }
 
@@ -123,16 +123,28 @@ int add_employee_command(char **args, sqlite3 *db, void *state_ptr)
 int remove_employee_command(char **args, sqlite3 *db, void *state_ptr)
 {
 	logger_state_t *state = (logger_state_t *) state_ptr;
+	employee_t *employee_list = state->employees;
 	char *sql = NULL;
 	employee_t *entry = NULL;
 
 	if (args[0] == NULL)
 		return 1;
+	else
+	{
+		if (string_compare(args[0], "name") == 0)
+			entry = check_employee(args[1] ? args[1] : NULL, 0, employee_list);
+		else if (string_compare(args[0], "id") == 0)
+			entry = check_employee(NULL, args[1] ? atoi(args[1]) : 0, employee_list);
+		else
+		{
+			printf("remove: Can't filter by [%s] attrbuite,  use <name || id> \n", args[0]);
+			return(1);
+		}
+	}
 
-	entry = check_employee(args[0], 0, state->employees);
 	if (entry == NULL)
 	{
-		printf("Employee [%s] is not in the list\n", args[0]);
+		printf("remove: There is no employee with %s = %s\n", args[0], args[1] ? args[1] : "null");
 		return 1;
 	}
 
@@ -148,4 +160,3 @@ int remove_employee_command(char **args, sqlite3 *db, void *state_ptr)
 	/* remove the employee from the list */
 	return remove_employee(entry, state);
 }
-
