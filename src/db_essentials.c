@@ -16,29 +16,6 @@ int open_connection(char * db_name, sqlite3 **db) {
 }
 
 /**
- * create_db - Create the database tables
- * @db: The database connection
- * Return: 0 on success, non-zero on failure
- */
-int create_db(sqlite3 *db) {
-    char *sql = "CREATE TABLE IF NOT EXISTS employees ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                "name TEXT NOT NULL UNIQUE);"
-                "CREATE TABLE IF NOT EXISTS logs ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                "employee_id INTEGER,"
-                "log_time TEXT,"
-                "FOREIGN KEY(employee_id) REFERENCES employees(id));";
-    char *err_msg = NULL;
-	int rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
-	if (rc != SQLITE_OK) {
-		fprintf(stderr, "SQL error: %s\n", err_msg);
-		sqlite3_free(err_msg);
-		return rc;
-	}
-	return 0;
-}
-/**
  * close_connection - Close the connection to the database
  * @db: The database connection
  * Return: 0 on success, non-zero on failure
@@ -48,6 +25,47 @@ int close_connection(sqlite3 *db) {
 	if (rc) {
 		fprintf(stderr, "Can't close database: %s\n", sqlite3_errmsg(db));
 		return rc;
+	}
+	return 0;
+}
+
+/**
+ * create_db - Create the database tables
+ * @db: The database connection
+ * Return: 0 on success, non-zero on failure
+ */
+int create_db(sqlite3 *db) {
+    char *sql = sqlite3_mprintf("CREATE TABLE IF NOT EXISTS employees ("
+                "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                "name TEXT NOT NULL UNIQUE);"
+                "CREATE TABLE IF NOT EXISTS logs ("
+                "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                "employee_id INTEGER,"
+                "log_time TEXT,"
+                "FOREIGN KEY(employee_id) REFERENCES employees(id));");
+	if (sql_exec(sql, db, NULL, NULL) != 0)
+		return 1;
+	return 0;
+}
+
+/**
+ * sql_exec - Execute an SQL statement
+ * @sql: The SQL statement to execute
+ * @db: The database connection
+ * @state_ptr: A pointer to the logger state
+ * @callback: The callback function to call
+ * Return: 0 on success, non-zero on failure
+ */
+int sql_exec(char *sql, sqlite3 *db, logger_state_t *state_ptr, int (*callback)(void *, int, char **, char **))
+{
+	char *err_msg = NULL;
+	int rc = sqlite3_exec(db, sql, callback, state_ptr, &err_msg);
+	if (rc != SQLITE_OK)
+	{
+		fprintf(stderr, "SQL error: %s\n", err_msg);
+		sqlite3_free(sql);
+		sqlite3_free(err_msg);
+		return 1;
 	}
 	return 0;
 }
