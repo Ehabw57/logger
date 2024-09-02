@@ -26,6 +26,7 @@ int main(void)
 		{"add", add_employee_command},
 		{"remove", remove_employee_command},
 		{"log", log_command},
+		{"unlog", unlog_command},
 		{"help", help_command},
 		{NULL, NULL}
 	};
