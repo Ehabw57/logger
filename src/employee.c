@@ -99,14 +99,14 @@ int add_employee_command(char **args, sqlite3 *db, void *state_ptr)
 
 	/* add the new employee to the database and list */
 	sql = sqlite3_mprintf("INSERT INTO employees (name) VALUES ('%q');", args[0]);
-	if (sql_exec(sql, db, state) != 0)
+	if (sql_exec(sql, db, state, 0) != 0)
 		return 1;
 
 	sqlite3_free(sql);
 
 	/* get and add the new employee to list */
 	sql = sqlite3_mprintf("SELECT * FROM employees WHERE name = '%q';", args[0]);
-	if (sql_exec(sql, db, state) != 0)
+	if (sql_exec(sql, db, state, callback_employees) != 0)
 		return 1;
 
 	sqlite3_free(sql);
@@ -139,7 +139,7 @@ int remove_employee_command(char **args, sqlite3 *db, void *state_ptr)
 
 	/* remove the employee from the database */
 	sql = sqlite3_mprintf("DELETE FROM employees WHERE name = '%q';", entry->name);
-	if (sql_exec(sql, db, state) != 0)
+	if (sql_exec(sql, db, state, 0) != 0)
 		return 1;
 
 	sqlite3_free(sql);
