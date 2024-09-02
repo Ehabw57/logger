@@ -1,6 +1,6 @@
 #include "logger.h"
 #include <stdio.h>
-#include <time.h>
+#include <stdlib.h>
 
 
 /**
@@ -16,7 +16,7 @@
 int main(void)
 {
 	sqlite3 *db = NULL;
-	char *db_name = "test.db";
+	char *db_name = "logger.db";
 	int i = 0;
 	char *line = NULL;
 	char **tokens = NULL;
@@ -25,6 +25,7 @@ int main(void)
 		{"print", print_command},
 		{"add", add_employee_command},
 		{"remove", remove_employee_command},
+		{"log", log_command},
 		{"help", help_command},
 		{NULL, NULL}
 	};
@@ -39,9 +40,15 @@ int main(void)
 	{
 		write(STDOUT_FILENO, COMMAND_LINE, 10); /*write promit to the stdout stream*/
 		line = read_line(stdin); /*get line form stdin*/
+		if (line == NULL)
+		{
+			if(feof(stdin))
+				break;
+			exit(EXIT_FAILURE);
+		}
 		tokens = tokenize_line(line); /*toknize the line bases on space delimeter*/
 
-		if (string_compare(tokens[0], "exit") == 0)
+		if (string_compare(tokens[0], "exit") == 0 )
 			break;
 
 		for (i = 0; commands[i].func != NULL; i++) /*loop through the commands*/
@@ -52,7 +59,7 @@ int main(void)
 				break;
 			}
 		}
-		if (commands[i].name == NULL)
+		if (commands[i].name == NULL && tokens[0])
 			fprintf(stdout,"%s: %s: command not avalible check [help]\n",
 					"logger", tokens[0]);
 		free(tokens);
