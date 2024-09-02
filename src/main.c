@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 
+
 /**
  * main - Entry point for the logger application.
  * 
@@ -14,22 +15,26 @@
  */
 int main(void)
 {
+	sqlite3 *db = NULL;
+	char *db_name = "test.db";
 	int i = 0;
 	char *line = NULL;
 	char **tokens = NULL;
 	logger_state_t state = {NULL, NULL};
 	command_t commands[] = {
-		{"log", log_command},
 		{"print", print_command},
 		{"add", add_employee_command},
-		{"remove", remove_employee},
+		{"remove", remove_employee_command},
 		{"help", help_command},
 		{NULL, NULL}
 	};
 
 	printf("---------Welcome to the logger\nType 'help' for manual-----------\n");
 
-	load_data(&state, LOG_DATA_FILE); /*load program previous data*/
+	open_connection(db_name, &db);
+	create_db(db);
+	storage_reload(db, &state);
+	
 	while (1)
 	{
 		write(STDOUT_FILENO, COMMAND_LINE, 10); /*write promit to the stdout stream*/
@@ -37,15 +42,13 @@ int main(void)
 		tokens = tokenize_line(line); /*toknize the line bases on space delimeter*/
 
 		if (string_compare(tokens[0], "exit") == 0)
-		{
-			exit_handler(&line, tokens, &state); /*termnaite the program is first input is exit*/
-		}
+			break;
 
-		for (i = 0; commands[i].function != NULL; i++) /*loop through the commands*/
+		for (i = 0; commands[i].func != NULL; i++) /*loop through the commands*/
 		{
 			if (string_compare(commands[i].name, tokens[0]) == 0) 
 			{
-				commands[i].function(tokens + 1, &state); /*call the desired function*/
+				commands[i].func(tokens + 1, db, &state); /*call the desired function*/
 				break;
 			}
 		}
@@ -55,5 +58,5 @@ int main(void)
 		free(tokens);
 		free(line);
 	};
-	exit_handler(&line, tokens, &state);
+	exit_handler(db, &line, tokens, &state);
 }

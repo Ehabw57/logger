@@ -1,18 +1,5 @@
 #include "logger.h"
 
-int sql_exec(char *sql, sqlite3 *db, logger_state_t *state_ptr)
-{
-	char *err_msg = NULL;
-	int rc = sqlite3_exec(db, sql, callback_employees, state_ptr, &err_msg);
-	if (rc != SQLITE_OK)
-	{
-		fprintf(stderr, "SQL error: %s\n", err_msg);
-		sqlite3_free(sql);
-		sqlite3_free(err_msg);
-		return 1;
-	}
-	return 0;
-}
 
 /**
  * check_employee - Checks if an employee is in the employee list.
@@ -84,7 +71,6 @@ int add_employee(char *name, int id, void *state_ptr)
 	free(entry->name);
 	free(entry);
 	return 0;
-	return 1;
 }
 
 /**
@@ -152,12 +138,12 @@ int remove_employee_command(char **args, sqlite3 *db, void *state_ptr)
 
 
 	/* remove the employee from the database */
-	sql = sqlite3_mprintf("DELETE FROM employees WHERE name = '%q';", args[0]);
+	sql = sqlite3_mprintf("DELETE FROM employees WHERE name = '%q';", entry->name);
 	if (sql_exec(sql, db, state) != 0)
 		return 1;
 
 	sqlite3_free(sql);
-	printf("Successfully removed employee [%s]\n", args[0]);
+	printf("Successfully removed employee [%s]\n", entry->name);
 
 	/* remove the employee from the list */
 	return remove_employee(entry, state);
