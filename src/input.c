@@ -8,19 +8,9 @@
  * @tokens: tokens of the line
  * @state_ptr: Holder of the loggr state
  */
-void exit_handler(sqlite3 *db, char **line, char **tokens, void *state_ptr)
+void exit_handler(sqlite3 *db, char **line, char **tokens)
 {
-	logger_state_t	*state = (logger_state_t *)state_ptr;
-	employee_t *employee_list = state->employees;
-	employee_t *tmp = NULL;
 
-	while (employee_list)
-	{
-		tmp = employee_list;
-		employee_list = employee_list->next;
-		free(tmp->name);
-		free(tmp);
-	}
 	close_connection(db);
 	if (*line != NULL)
 		free(*line);
@@ -65,7 +55,7 @@ char *read_line(FILE* stream)
 char **tokenize_line(char *line)
 {
     int i = 0;
-    char **tokens = malloc(sizeof(char *) * 4);  /* you have to Dynamic allocation for tokens*/
+    char **tokens = malloc(sizeof(char *) * 6);  /* you have to Dynamic allocation for tokens*/
 
     if (tokens == NULL)
         return NULL;

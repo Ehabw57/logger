@@ -1,5 +1,15 @@
 #include "logger.h"
 
+
+int check_rc(int rc, sqlite3 *db, const char *msg)
+{
+    if (rc != SQLITE_OK)
+	{
+        fprintf(stderr, "%s: %s\n", msg, sqlite3_errmsg(db));
+		return 1;
+    }
+	return 0;
+}
 /**
  * open_connection - Open a connection to the database
  * @db_name: The name of the database
@@ -8,11 +18,7 @@
  */
 int open_connection(char * db_name, sqlite3 **db) {
 	int rc = sqlite3_open(db_name, db);
-	if (rc) {
-		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(*db));
-		return rc;
-	}
-	return 0;
+	return(check_rc(rc, *db, "Can't open database"));
 }
 
 /**
@@ -22,11 +28,7 @@ int open_connection(char * db_name, sqlite3 **db) {
  */
 int close_connection(sqlite3 *db) {
 	int rc = sqlite3_close(db);
-	if (rc) {
-		fprintf(stderr, "Can't close database: %s\n", sqlite3_errmsg(db));
-		return rc;
-	}
-	return 0;
+	return(check_rc(rc, db, "Can't close database"));
 }
 
 /**
@@ -35,37 +37,15 @@ int close_connection(sqlite3 *db) {
  * Return: 0 on success, non-zero on failure
  */
 int create_db(sqlite3 *db) {
-    char *sql = sqlite3_mprintf("CREATE TABLE IF NOT EXISTS employees ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                "name TEXT NOT NULL UNIQUE);"
-                "CREATE TABLE IF NOT EXISTS logs ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                "employee_id INTEGER,"
-                "log_time TEXT,"
-                "FOREIGN KEY(employee_id) REFERENCES employees(id));");
-	if (sql_exec(sql, db, NULL, NULL) != 0)
-		return 1;
-	return 0;
-}
-
-/**
- * sql_exec - Execute an SQL statement
- * @sql: The SQL statement to execute
- * @db: The database connection
- * @state_ptr: A pointer to the logger state
- * @callback: The callback function to call
- * Return: 0 on success, non-zero on failure
- */
-int sql_exec(char *sql, sqlite3 *db, logger_state_t *state_ptr, int (*callback)(void *, int, char **, char **))
-{
-	char *err_msg = NULL;
-	int rc = sqlite3_exec(db, sql, callback, state_ptr, &err_msg);
-	if (rc != SQLITE_OK)
-	{
-		fprintf(stderr, "SQL error: %s\n", err_msg);
-		sqlite3_free(sql);
-		sqlite3_free(err_msg);
-		return 1;
-	}
-	return 0;
+	char *sql = "CREATE TABLE IF NOT EXISTS employees ("
+			"id INTEGER PRIMARY KEY AUTOINCREMENT,"
+			"name TEXT NOT NULL UNIQUE);"
+			
+			"CREATE TABLE IF NOT EXISTS logs ("
+			"id INTEGER PRIMARY KEY, "
+			"employee_id INTEGER, "
+			"log_time TEXT, "
+			"FOREIGN KEY (employee_id) REFERENCES employees(id));";
+	int rc = sqlite3_exec(db, sql, 0, 0, 0);
+	return(check_rc(rc, db, "Failed to create table"));
 }

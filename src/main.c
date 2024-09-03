@@ -1,8 +1,4 @@
 #include "logger.h"
-#include <stdio.h>
-#include <stdlib.h>
-
-
 /**
  * main - Entry point for the logger application.
  * 
@@ -20,14 +16,13 @@ int main(void)
 	int i = 0;
 	char *line = NULL;
 	char **tokens = NULL;
-	logger_state_t state = {NULL, NULL};
 	command_t commands[] = {
-		{"print", print_command},
-		{"add", add_employee_command},
-		{"remove", remove_employee_command},
-		{"log", log_command},
-		{"unlog", unlog_command},
-		{"help", help_command},
+		{"print", print},
+		{"add", add_employee},
+		{"remove", remove_employee},
+		{"log", add_log},
+		{"unlog", remove_log},
+		{"help", help},
 		{NULL, NULL}
 	};
 
@@ -35,11 +30,10 @@ int main(void)
 
 	open_connection(db_name, &db);
 	create_db(db);
-	storage_reload(db, &state);
 	
 	while (1)
 	{
-		write(STDOUT_FILENO, COMMAND_LINE, 10); /*write promit to the stdout stream*/
+		write(STDOUT_FILENO, COMMAND_PROMPT, 9);
 		line = read_line(stdin); /*get line form stdin*/
 		if (line == NULL)
 		{
@@ -56,15 +50,14 @@ int main(void)
 		{
 			if (string_compare(commands[i].name, tokens[0]) == 0) 
 			{
-				commands[i].func(tokens + 1, db, &state); /*call the desired function*/
+				commands[i].func(tokens + 1, db); /*call the desired function*/
 				break;
 			}
 		}
 		if (commands[i].name == NULL && tokens[0])
-			fprintf(stdout,"%s: %s: command not avalible check [help]\n",
-					"logger", tokens[0]);
+			fprintf(stderr,"logger: %s: command not avalible check [help]\n", tokens[0]);
 		free(tokens);
 		free(line);
 	};
-	exit_handler(db, &line, tokens, &state);
+	exit_handler(db, &line, tokens);
 }

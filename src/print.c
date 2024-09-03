@@ -1,119 +1,98 @@
 #include "logger.h"
-int print_headers = 0;
-int print_data = 0;
-/**
- * print_employees - Prints all employees in the employee list.
- * @args: Function arguments, not used in this implementation.
- * @state_ptr: Pointer to the logger state which holds the employee list.
- * 
- * Return: 0 if print succeeded, 1 otherwise (e.g., if the list is empty).
- */
-int print_employees(char **args, void* state_ptr)
+
+void print_table(char **table, int row, int column)
 {
-	logger_state_t *state = (logger_state_t *) state_ptr;
-	employee_t *employes_list = state->employees;
-	int i = 1;
-
-	if(*args != NULL)
-		printf("logger: Please note that print doesnt have any extra features now\n");/*this line will be removed later*/
-
-    if (employes_list == NULL)
-    {
-        printf("logger: No employees in the list yet,\n add an employee or check [help add]!!\n");
-        return 1;
-    }
-
-	printf("Employee_id 		Name\n");
-    while (employes_list != NULL)
-    {
-        printf("%d			%s\n", employes_list->id, employes_list->name);
-        employes_list = employes_list->next;
-		i++;
-    }
-    return 0;
-}
-/**
- * callback_logs - Callback function to print logs.
- * @NotUsed: Not used.
- * @argc: Number of columns in the result.
- * @argv: Array of strings representing the result.
- * @azColName: Array of strings representing the column names.
- * Return: 0 if successful, 1 otherwise.
- */
-int callback_logs(void *NotUsed, int argc, char **argv, char **azColName)
-{
-	(void) NotUsed;
-	int i;
+	int i  = 0;
 	int col_width = 15;
-
-	/* print headers */
-	if (!print_headers) {
-		for (i = 0; i < argc; i++) {
-			printf("| %-*s ", col_width, azColName[i]);
-		}
-		printf("\n");
-
-		print_headers = 1;
+	/* print column headrs */
+	for (i = 0; i < column; i++)
+		printf("| %-*s ", col_width, table[i]);
+	
+	/* print rows data */
+	for (i = column; i < (row + 1) * column; i++)
+	{
+		if (i % column == 0)
+			printf("\n");
+		printf("| %-*s ", col_width, table[i]);
 	}
-
-	/* print values */
-	for (i = 0; i < argc; i++) {
-		printf("| %-*s ", col_width, argv[i] ? argv[i] : "NULL");
-	}
-	printf("|\n");
-	print_data = 1;
-
-	return 0;;
+	printf("\n");
+	sqlite3_free_table(table);
 }
 
-int print_logs(sqlite3 *db, char**args)
+int print_employees(sqlite3 *db, char **args)
 {
-	char * sql = NULL;
+	(void) args;
+	char *sql = "SELECT * FROM employees";
+	int rc = 0;
+	char **table = NULL;
+	int column, row = 0;
+
+	rc = sqlite3_get_table(db, sql, &table, &row, &column, NULL);
+
+	if (check_rc(rc, db, "print: Failed to get employees") != 0)
+		return 1;
+
+	if (row == 0)
+	{
+		printf("print: No employees found\n");
+		return 1;
+	}
+
+	print_table(table, row, column);
+	return 0;
+}
+
+int print_logs(sqlite3 *db, char **args)
+{
+	char *basic = "SELECT logs.id, employees.name, logs.log_time FROM logs JOIN employees ON logs.employee_id = employees.id";
+	char *sql = NULL;
+	int rc = 0;
+	char **table = NULL;
+	int column, row = 0;
 
 	if (args[0] == NULL)
-		sql = sqlite3_mprintf("SELECT logs.id, employees.name, logs.log_time FROM logs JOIN employees ON logs.employee_id = employees.id");
+		sql = sqlite3_mprintf("%s", basic);
 	else
 	{
 		if (string_compare(args[0], "name") == 0)
-			sql = sqlite3_mprintf("SELECT logs.id, employees.name, logs.log_time FROM logs JOIN employees ON logs.employee_id = employees.id WHERE employees.name LIKE '%q'", args[1] ? args[1] : "");
+			sql = sqlite3_mprintf("%s WHERE employees.name LIKE '%q'", basic, args[1] ? args[1] : "");
 		else if (string_compare(args[0], "id") == 0)
-			sql = sqlite3_mprintf("SELECT logs.id, employees.name, logs.log_time FROM logs JOIN employees ON logs.employee_id = employees.id WHERE employees.id = %q", args[1] ? args[1] : "");
+			sql = sqlite3_mprintf("%S WHERE employees.id = %q", basic, args[1] ? args[1] : "");
 		else
 		{
 			printf("print: Can't filter by [%s] attrbuite,  use <name || id> \n", args[0]);
 			return(1);
 		}
 	}
-	if (sql_exec(sql, db, 0, callback_logs) != SQLITE_OK || !print_data)
+	rc = sqlite3_get_table(db, sql, &table, &row, &column, NULL);
+	if (check_rc(rc, db, "print: Failed to get logs") != 0)
 	{
-		printf("logger: No data found\n");
+		sqlite3_free(sql);
 		return 1;
 	}
-
-	print_data = print_headers = 0; /*reset print flags*/
+	if (row == 0)
+	{
+		printf("print: No logs found %s %s\n", args[0] ? "for the provided filter" : "",
+				args[0] ? args[1] : "");
+		sqlite3_free(sql);
+		return 1;
+	}
 	sqlite3_free(sql);
-	return (0);
+	print_table(table, row, column);
+	return 0;
 }
 
-
-/**
- * print_command - Handles the print command to display either logs or employees.
- * @args: Function arguments, where the first argument specifies what to print (e.g., "logs" or "employee").
- * @state_ptr: Pointer to the logger state which holds both employee and log entries lists.
- * 
- * Return: 0 if print succeeded, 1 otherwise (e.g., if the command is unrecognized).
- */
-int print_command(char **args, sqlite3 *db, void *state_ptr)
+int print(char **args, sqlite3 *db)
 {
 	if(args == NULL)
 	{
-		*args = "empty_args";
+		*args = "null";
 		here: 
-		printf("print: Looks like [%s] is not a print feature\n\tcheck {help print}\n", args[0]);
+		printf("print: [%s] is not a print feature, check {help print}\n", args[0]);
 		return (1);
 	}
 	if (string_compare(args[0], "employee") == 0)
-		return(print_employees(args+1, state_ptr));
+		return(print_employees(db, args+1));
 
 	if (string_compare(args[0], "logs") == 0)
 		return(print_logs(db, args+1));
