@@ -6,15 +6,14 @@
  * exit_handler - Handel all program exit status
  * @line; Read line
  * @tokens: tokens of the line
- * @state_ptr: Holder of the loggr state
  */
 void exit_handler(sqlite3 *db, char **line, char **tokens)
 {
 
 	close_connection(db);
-	if (*line != NULL)
+	if (*line != NULL && !feof(stdin))
 		free(*line);
-	if(tokens != NULL)
+	if(tokens != NULL && !feof(stdin))
 		free(tokens);
 	printf("\n---------Goodbye---------\n");
 }

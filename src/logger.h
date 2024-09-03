@@ -29,15 +29,15 @@ typedef struct command
 
 
 /* Employee mangement fuction */
-int remove_employee(char **args, sqlite3 *db); /* Removes an employee from the employee list */
-int add_employee(char **args, sqlite3 *db); /* Adds a new employee to the employee list */
+int remove_employee(char **args, sqlite3 *db); /* Removes an employee from the database */
+int add_employee(char **args, sqlite3 *db); /* Adds a new employee to the database */
 
 /* Log Management Functions */
 int add_log(char **args, sqlite3 *db); /* Starts a new log entry for an employee */
 int remove_log(char **args, sqlite3 *db); /* Removes a log entry from the database */
 
 /* Print Functions */
-int print(char **args, sqlite3 *db); /* Prints data */
+int print(char **args, sqlite3 *db); /* Prints the contents of the database */
 int help(char **args, sqlite3 *NotUsed); /* Displays the help manual */
 
 /* Input and Output Functions */
@@ -48,12 +48,10 @@ int string_compare(char *s1, char *s2); /* Compares two strings */
 void exit_handler(sqlite3 *db, char **line, char **tokens); /* Handles program exit status */
 
 /* Database Functions */
-int create_db(sqlite3 *db); /* Creates the database tables */
 int open_connection(char *db_name, sqlite3 **db); /* Opens a connection to the database */
 int close_connection(sqlite3 *db); /* Closes the connection to the database */
-int storage_reload(sqlite3 *db, void **head); /* Reloads the employees from the database */
-int check_rc(int rc, sqlite3 *db, const char *msg); /* Checks the return code of a SQLite function */
-
-
+int create_db(sqlite3 *db); /* Creates the database tables */
+int enable_foreign_key(sqlite3 *db) /* Enables foreign key constraints */;
+int check_rc(int rc, sqlite3 *db, const char *msg); /* Checks the return code of a SQLite exec function */
 
 #endif /* LOGGER_H */

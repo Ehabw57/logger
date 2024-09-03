@@ -73,8 +73,6 @@ static void print_command_help(char *command)
 /**
  * help_command - Displays the help manual or specific command help based on the arguments provided.
  * @args: The arguments for the help command.
- * @state_ptr: Pointer to the logger state holder (not used in this function).
- * 
  * Return: Alwayas return 0
  */
 int help(char **args, sqlite3 *NotUsed)

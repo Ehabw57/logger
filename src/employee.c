@@ -1,10 +1,10 @@
 #include "logger.h"
 
 /**
- * add_employee_command - Adds a new employee to the employee list.
- * @args: Array of arguments, where the first element is the employee's name.
- * @state_ptr: Pointer to the logger state which holds the employee list.
- * Return: 0 on success, 1 if the employee is already in the list or no name is provided.
+ * add_employee_command - Adds a new employee to the database.
+ * @args: Array of arguments
+ * @db: The database connection.
+ * Return: 0 on success, 1 if the employee is already in the database or no data is provided.
  */
 int add_employee(char **args, sqlite3 *db)
 {
@@ -34,10 +34,10 @@ int add_employee(char **args, sqlite3 *db)
 }
 
 /**
- * remove_employee_command_db - Removes an employee from the employee list.
- * @args: Array of arguments, where the first element is the employee's name.
+ * remove_employee_command_db - Removes an employee from the database.
+ * @args: Array of arguments.
  * @db: The database connection.
- * Return: 0 on success, 1 if the employee is not found or no name is provided.
+ * Return: 0 on success, 1 if the employee is not found or no data is provided.
  */
 int remove_employee(char **args, sqlite3 *db)
 {
@@ -52,16 +52,15 @@ int remove_employee(char **args, sqlite3 *db)
 	else
 	{
 		if (string_compare(args[0], "name") == 0)
-			sql = sqlite3_mprintf("DELETE FROM employees WHERE name = '%q';", args[1]);
+			sql = sqlite3_mprintf("DELETE FROM employees WHERE name LIKE '%q';", args[1]);
 		else if (string_compare(args[0], "id") == 0)
-			sql = sqlite3_mprintf("DELETE FROM employees WHERE id = %d;", atoi(args[1]));
+			sql = sqlite3_mprintf("DELETE FROM employees WHERE id = %d;", args[1] ? atoi(args[1]) : 0);
 		else
 		{
 			printf("remove: Can't filter by [%s] attrbuite,  use [name || id] \n", args[0]);
 			return(1);
 		}
 	}
-
 
 	/* remove the employee from the database */
 	rc = sqlite3_exec(db, sql, 0, 0, 0);
@@ -75,6 +74,6 @@ int remove_employee(char **args, sqlite3 *db)
 		return 1;
 	}
 
-	printf("Successfully removed employee [%s]\n", args[1]);
+	printf("Successfully removed employee \n");
 	return 0;
 }

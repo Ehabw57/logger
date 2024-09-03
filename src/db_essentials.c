@@ -1,6 +1,13 @@
 #include "logger.h"
 
-
+/**
+ * check_rc - Check the return code of a sqlite3_exec function
+ * And print custom error message
+ * @rc: The return code
+ * @db: The database connection
+ * @msg: The message to print on error
+ * Return: 0 on success, non-zero on failure
+ */
 int check_rc(int rc, sqlite3 *db, const char *msg)
 {
     if (rc != SQLITE_OK)
@@ -40,12 +47,23 @@ int create_db(sqlite3 *db) {
 	char *sql = "CREATE TABLE IF NOT EXISTS employees ("
 			"id INTEGER PRIMARY KEY AUTOINCREMENT,"
 			"name TEXT NOT NULL UNIQUE);"
-			
 			"CREATE TABLE IF NOT EXISTS logs ("
 			"id INTEGER PRIMARY KEY, "
-			"employee_id INTEGER, "
+			"employee_id INTEGER NOT NULL, "
 			"log_time TEXT, "
-			"FOREIGN KEY (employee_id) REFERENCES employees(id));";
+			"FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE);";
 	int rc = sqlite3_exec(db, sql, 0, 0, 0);
 	return(check_rc(rc, db, "Failed to create table"));
+}
+
+
+/**
+ * enable_foreign_key - Enable foreign key constraints
+ * @db: The database connection
+ * Return: 0 on success, non-zero on failure
+ */
+int enable_foreign_key(sqlite3 *db) 
+{
+	int rc = sqlite3_exec(db, "PRAGMA foreign_keys = ON;", 0, 0, 0);
+	return(check_rc(rc, db, "Failed to enable foreing_key"));
 }

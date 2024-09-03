@@ -30,6 +30,7 @@ int main(void)
 
 	open_connection(db_name, &db);
 	create_db(db);
+	enable_foreign_key(db);
 	
 	while (1)
 	{
