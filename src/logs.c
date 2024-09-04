@@ -1,4 +1,11 @@
-#include "logger.h"
+#include "logs.h"
+#include "db_essentials.h"
+#include "string_utils.h"
+#include <string.h>
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 /**
  * add_log - Starts a new log entry for an employee.
  * @args: Array of arguments, where the first element is the employee's name or ID.

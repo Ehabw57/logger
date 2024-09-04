@@ -1,5 +1,7 @@
-#include "logger.h"
-
+#include "string_utils.h"
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
 /**
  * string_compare - compare two strings case-insensitively
  * @s1: first string
@@ -42,3 +44,43 @@ char *strdup(const char *str)
 	return (dup);
 }
 
+/**
+ * string_concat - concatenate two strings
+ * @s1: first string
+ * @s2: second string
+ * Return: pointer to new string, or NULL if memory allocation fails
+ */
+char *string_concat(char *s1, char *s2)
+{
+	char *concat;
+	int len1 = s1 ? strlen(s1) : 0;
+	int len2 = s2 ? strlen(s2) : 0;
+
+	concat = malloc(len1 + len2 + 1);
+	if (concat == NULL)
+		return (NULL);
+
+	if (s1)
+		strcpy(concat, s1);
+	if (s2)
+		strcpy(concat + len1, s2);
+
+	return (concat);
+}
+
+/**
+ * no_space - check if a string contains spaces
+ * @str: string to check
+ * Return: 1 if string contains no spaces, 0 if it does
+ */
+int no_space(char *str)
+{
+	while (*str)
+	{
+		if (*str == ' ')
+			return (0);
+		str++;
+	}
+
+	return (1);
+}

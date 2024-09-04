@@ -1,5 +1,5 @@
-#include "logger.h"
-
+#include "db_essentials.h"
+#include <stdio.h>
 /**
  * check_rc - Check the return code of a sqlite3_exec function
  * And print custom error message
