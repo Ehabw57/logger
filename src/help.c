@@ -1,4 +1,6 @@
-#include "logger.h"
+#include "help.h"
+#include "string_utils.h"
+#include <stdio.h>
 /**
  * print_general_help - Prints the general help manual for the logger application.
  */

@@ -1,4 +1,8 @@
-#include "logger.h"
+#include "print.h"
+#include "string_utils.h"
+#include "db_essentials.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 /**
  * print_table - print a table

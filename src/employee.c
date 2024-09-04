@@ -1,5 +1,8 @@
-#include "logger.h"
-
+#include "employee.h"
+#include "db_essentials.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include "string_utils.h"
 /**
  * add_employee_command - Adds a new employee to the database.
  * @args: Array of arguments

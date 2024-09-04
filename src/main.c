@@ -1,4 +1,12 @@
-#include "logger.h"
+#include "basic.h"
+#include "db_essentials.h"
+#include "input.h"
+#include "string_utils.h"
+#include "print.h"
+#include "employee.h"
+#include "logs.h"
+#include <unistd.h>
+#include <stdlib.h>
 /**
  * main - Entry point for the logger application.
  * 
@@ -12,7 +20,7 @@
 int main(void)
 {
 	sqlite3 *db = NULL;
-	char *db_name = "logger.db";
+	char *db_name = "data/logger.db";
 	int i = 0;
 	char *line = NULL;
 	char **tokens = NULL;
@@ -36,12 +44,8 @@ int main(void)
 	{
 		write(STDOUT_FILENO, COMMAND_PROMPT, 9);
 		line = read_line(stdin); /*get line form stdin*/
-		if (line == NULL)
-		{
-			if(feof(stdin))
-				break;
-			exit(EXIT_FAILURE);
-		}
+		if(line == NULL)
+			break;
 		tokens = tokenize_line(line); /*toknize the line bases on space delimeter*/
 
 		if (string_compare(tokens[0], "exit") == 0 )

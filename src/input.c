@@ -1,6 +1,9 @@
-#include "logger.h"
+#include "input.h"
+#include "db_essentials.h"
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 /**
  * exit_handler - Handel all program exit status
