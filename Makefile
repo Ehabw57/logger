@@ -1,7 +1,7 @@
 # Compiler
 CC = gcc
-CFLAGS = -Wall -Werror -Wextra -pedantic -g
-LDFLAGS = -lsqlite3
+CFLAGS = -Wall -Werror -Wextra -pedantic -g -Iunittest/unity
+LDFLAGS = -lsqlite3 -lcrypt
 
 # Directories
 SRC_DIR = src
