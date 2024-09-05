@@ -5,6 +5,7 @@
 #include "print.h"
 #include "employee.h"
 #include "logs.h"
+#include "user.h"
 #include <unistd.h>
 #include <stdlib.h>
 /**
@@ -20,7 +21,6 @@
 int main(void)
 {
 	sqlite3 *db = NULL;
-	char *db_name = "data/logger.db";
 	int i = 0;
 	char *line = NULL;
 	char **tokens = NULL;
@@ -33,10 +33,14 @@ int main(void)
 		{"help", help},
 		{NULL, NULL}
 	};
+	char *wellcome_string ="---------Welcome to the logger\nType 'help' for manual-----------\n"
+		"\n**PLEASE NOTE**: You are currently on an IN-MEMORY database\n"
+		"any changes or data you create will be lost on exit\n"
+		"user (register) to create a user or (login) if you already have and account\n\n";
 
-	printf("---------Welcome to the logger\nType 'help' for manual-----------\n");
+	printf("%s", wellcome_string);
 
-	open_connection(db_name, &db);
+	open_connection(NULL, &db);
 	create_db(db);
 	enable_foreign_key(db);
 	
@@ -50,6 +54,16 @@ int main(void)
 
 		if (string_compare(tokens[0], "exit") == 0 )
 			break;
+		if (string_compare(tokens[0], "login") == 0 || string_compare(tokens[0], "register") == 0)
+		{
+			if(!string_compare(tokens[0], "login"))
+				login(&db, stdin);
+			else
+				register_user(stdin);
+			free(line);
+			free(tokens);
+			continue;
+		}
 
 		for (i = 0; commands[i].func != NULL; i++) /*loop through the commands*/
 		{
@@ -60,7 +74,7 @@ int main(void)
 			}
 		}
 		if (commands[i].name == NULL && tokens[0])
-			fprintf(stderr,"logger: %s: command not avalible check [help]\n", tokens[0]);
+			fprintf(stderr,"\nlogger: %s: command not avalible check [help]\n", tokens[0]);
 		free(tokens);
 		free(line);
 	};
