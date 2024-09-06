@@ -10,9 +10,11 @@
  */
 int check_rc(int rc, sqlite3 *db, const char *msg)
 {
+	(void)db;
+	(void)msg;
     if (rc != SQLITE_OK)
 	{
-        fprintf(stderr, "%s: %s\n", msg, sqlite3_errmsg(db));
+        fprintf(stderr, "%s\n", msg);
 		return 1;
     }
 	return 0;
@@ -25,7 +27,7 @@ int check_rc(int rc, sqlite3 *db, const char *msg)
  */
 int open_connection(char * db_name, sqlite3 **db) {
 	int rc = sqlite3_open(db_name, db);
-	return(check_rc(rc, *db, "Can't open database"));
+	return(check_rc(rc, *db, "logger: Can't open database file, (/data) dir have been deleted or corrupted\n\trestarting..."));
 }
 
 /**
