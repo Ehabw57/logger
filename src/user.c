@@ -7,7 +7,13 @@
 #include <unistd.h>
 #include <termios.h>
 #include <time.h>
+#include <sys/stat.h>
 
+char *users_table = "CREATE TABLE IF NOT EXISTS users("
+			"id INTEGER PRIMARY KEY AUTOINCREMENT,"
+			"username TEXT NOT NULL UNIQUE,"
+			"password TEXT NOT NULL,"
+			"database TEXT NOT NULL UNIQUE);";
 /**
  * random_ascii_char - generates a random ascii character between A-Z, a-z, 0-9
  * Return: random ascii character
@@ -87,20 +93,16 @@ int register_user(FILE *stream)
 	char *user = NULL;
 	char *pass = NULL;
 	char *db_name = NULL;
-	char *sql = "CREATE TABLE IF NOT EXISTS users("
-				"id INTEGER PRIMARY KEY AUTOINCREMENT,"
-				"username TEXT NOT NULL UNIQUE,"
-				"password TEXT NOT NULL,"
-				"database TEXT NOT NULL UNIQUE);";
 	int rc = 0;
 	
 
-	if (open_connection(DATABASE_PATH, &db) ||  sqlite3_exec(db, sql, 0, 0, 0))
+	if (open_connection(DATABASE_PATH, &db) != SQLITE_OK)
 	{
-		printf("You mother F***er did you just delete '/data' directory?\n");
 		close_connection(db);
-		return 1;
+		mkdir(DATABASE_DIR, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		open_connection(DATABASE_PATH, &db);
 	}
+	sqlite3_exec(db, users_table, 0, 0, 0);
 
 	/* repeat until user enters valid username */
 	while (1) 
@@ -114,7 +116,7 @@ int register_user(FILE *stream)
 		}
 		if (strlen(user) > 12 || strlen(user) < 5 || !no_space(user))
 		{
-			printf("\nUsername must be between 5 to 12 characters and contain no spaces\n");
+			printf("Username must be between 5 to 12 characters and contain no spaces\n");
 			free(user);
 			continue;
 		}
@@ -144,7 +146,7 @@ int register_user(FILE *stream)
 	/* insert user into database */
 	srand(time(NULL));
 	random_name(&db_name);
-	sql = sqlite3_mprintf("INSERT INTO users (username, password, database) VALUES ('%q', '%q', '%q');", user, crypt(pass, "$1$"), db_name);
+	char *sql = sqlite3_mprintf("INSERT INTO users (username, password, database) VALUES ('%q', '%q', '%q');", user, crypt(pass, "$1$"), db_name);
 	rc = sqlite3_exec(db, sql, 0, 0, 0);
 	if (check_rc(rc, db, "Failed to insert user"))
 	{
@@ -158,7 +160,7 @@ int register_user(FILE *stream)
 	}
 	sqlite3_free(sql);
 	
-	printf("logger: You have been registered successfully use (login) to login\n");
+	printf("\nlogger: You have been registered successfully use (login) to login\n");
 	free(pass);
 	free(db_name);
 	free(user);
@@ -187,9 +189,10 @@ int login(sqlite3 **user_db, FILE *stream)
 	rc = open_connection(DATABASE_PATH, &db);
 	if(rc != SQLITE_OK)
 	{
-		printf("You mother F***er did you just delete '/data' directory?\n");
 		close_connection(db);
-		return 1;
+		mkdir(DATABASE_DIR, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		open_connection(DATABASE_PATH, &db);
+		sqlite3_exec(db, users_table, 0, 0, 0);
 	}
 	printf("username: ");
 	name = read_line(stream);
@@ -220,7 +223,7 @@ int login(sqlite3 **user_db, FILE *stream)
 	}
 	if (row == 0)
 	{
-		fprintf(stderr, "login: username or passowrd error\n");
+		fprintf(stderr, "\nlogin: username or passowrd error\n");
 		free(name);
 		free(pass);
 		sqlite3_free(sql);
@@ -228,19 +231,15 @@ int login(sqlite3 **user_db, FILE *stream)
 		close_connection(db);
 		return 1;
 	}
-	printf("\nWellcome back %s you are currenty loged in with DataBase (%s)\n", name, table[1]);
+	printf("\nWellcome %s you have logined sucssfully\n", name);
 	close_connection(*user_db);
 	sprintf(user_db_path, "data/%s",table[1]);
 	rc = open_connection(user_db_path , user_db);
 	if(rc != SQLITE_OK)
 	{
-		printf("You mother F***er did you just delete '/data' directory?\n");
-		free(name);
-		free(pass);
-		sqlite3_free(sql);
-		sqlite3_free_table(table);
-		close_connection(db);
-		return 1;
+		mkdir(DATABASE_DIR, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		close_connection(*user_db);
+		open_connection(user_db_path , user_db);
 	}
 	create_db(*user_db);
 	enable_foreign_key(*user_db);
