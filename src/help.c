@@ -8,6 +8,8 @@ static void print_general_help(void)
 {
     printf("--------- Logger Application Help ---------\n");
     printf("Available commands:\n");
+    printf("  register                           - Register a new user.\n");
+    printf("  login <username>                   - Login to the user.\n");
     printf("  log [<employee_name>|<id>          - Log an entry for the specified employee with the current time.\n");
     printf("  unlog <log_id>                     - Remove a log entry from logs table.\n");
     printf("  print [logs|employee]              - Print data from the application memory.\n");
@@ -65,6 +67,18 @@ static void print_command_help(char *command)
 	{
 		printf("Usage: exit\n");
 		printf("Description: Exit the application.\n");
+	}
+    else if (string_compare(command, "register") == 0)
+	{
+		printf("Usage: register\n");
+		printf("Description: Register a new user.\n");
+		printf("Warngin: user must be between 5 to 12 characters long and doesnt have spaces.\n");
+		printf("Warning: password must be 8 characters long and doesnt have spaces.\n");
+	}
+    else if (string_compare(command, "login") == 0)
+	{
+		printf("Usage: login <username>\n");
+		printf("Description: Login to the user.\n");
 	}
     else
     {
