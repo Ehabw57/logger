@@ -6,6 +6,6 @@
 	
 #define DATABASE_PATH "data/logger.db"
 #define DATABASE_DIR "data"
-int login(sqlite3 **db, FILE *stream);
+int login(char **args, sqlite3 **user_db);
 int register_user(FILE *stream);
 #endif // USER_H

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <termios.h>
 
 /**
  * exit_handler - Handel all program exit status
@@ -47,6 +48,37 @@ char *read_line(FILE* stream)
 
 	line[nread - 1] = '\0'; /*convert the newline aka(\n) to null termnatior*/
     return line;
+}
+/**
+ * get_passwd - reads a password from the stream without echoing it
+ * Note: the caller is responsible for freeing the memory allocated for the password
+ * @stream: stream to read the password from
+ * Return: password on success, NULL on failure
+ */
+char *get_passwd(FILE *stream)
+{
+    struct termios old, new;
+	char *passwd = NULL;
+
+    /* Turn echoing off and fail if we can't. */
+    if (tcgetattr (fileno (stream), &old) != 0)
+        return NULL;
+    new = old;
+    new.c_lflag &= ~ECHO;
+    if (tcsetattr (fileno (stream), TCSAFLUSH, &new) != 0)
+        return NULL;
+
+    /* Read the password. */
+    passwd = read_line(stream);
+	if (passwd == NULL)
+	{
+		(void) tcsetattr (fileno (stream), TCSAFLUSH, &old);
+		return NULL;
+	}
+
+    (void) tcsetattr (fileno (stream), TCSAFLUSH, &old);
+
+    return passwd;
 }
 
 /**
