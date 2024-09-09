@@ -57,7 +57,7 @@ int main(void)
 		if (string_compare(tokens[0], "login") == 0 || string_compare(tokens[0], "register") == 0)
 		{
 			if(!string_compare(tokens[0], "login"))
-				login(&db, stdin);
+				login(tokens + 1, &db);
 			else
 				register_user(stdin);
 			free(line);

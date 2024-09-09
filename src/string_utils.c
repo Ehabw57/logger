@@ -84,3 +84,38 @@ int no_space(char *str)
 
 	return (1);
 }
+
+/**
+ * random_ascii_char - generates a random ascii character between A-Z, a-z, 0-9
+ * Return: random ascii character
+ */
+unsigned int random_ascii_char(void)
+{
+	int ranges[3][2] = {{65, 90}, {97, 122}, {48, 57}};
+	int selected_range = rand() %3;
+	int min = ranges[selected_range][0];
+	int max = ranges[selected_range][1];
+
+	return min + (rand() % (max -min +1));
+}
+
+/**
+ * random_name - generates a random name of length between 6 and 24 characters
+ * Note: the caller is responsible for freeing the memory allocated for the name
+ * @name: pointer to store the generated name
+ * Return: 0 on success, 1 on failure
+ */
+int random_name(char **name)
+{
+	unsigned int i = 0;
+	unsigned int length = 6 + (rand() % (6 - 24));
+
+	*name = malloc(sizeof(char) * (length +1));
+	if (*name == NULL)
+		return 1;
+
+	for (i = 0; i < length; i++)
+		(*name)[i] = (char)random_ascii_char();
+	(*name)[length] = '\0';
+	return 0;
+}
